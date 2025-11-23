@@ -50,7 +50,6 @@ export async function generateAssistantResponse(requestBody, callback) {
         const parts = data.response?.candidates?.[0]?.content?.parts;
         if (parts) {
           for (const part of parts) {
-            console.log('Debug - Part:', JSON.stringify(part, null, 2));
             if (part.thought === true) {
               if (!thinkingStarted) {
                 callback({ type: 'thinking', content: '<think>\n' });
