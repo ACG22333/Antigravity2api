@@ -67,7 +67,19 @@ function handleUserMessage(extracted, antigravityMessages) {
 function handleAssistantMessage(message, antigravityMessages) {
   const lastMessage = antigravityMessages[antigravityMessages.length - 1];
   const hasToolCalls = message.tool_calls && message.tool_calls.length > 0;
-  const hasContent = message.content && message.content.trim() !== '';
+
+  let contentText = '';
+  if (typeof message.content === 'string') {
+    contentText = message.content;
+  } else if (Array.isArray(message.content)) {
+    for (const item of message.content) {
+      if (item.type === 'text') {
+        contentText += item.text;
+      }
+    }
+  }
+
+  const hasContent = contentText && contentText.trim() !== '';
 
   const antigravityTools = hasToolCalls ? message.tool_calls.map(toolCall => ({
     functionCall: {
@@ -84,7 +96,7 @@ function handleAssistantMessage(message, antigravityMessages) {
   } else {
     const parts = [];
     if (hasContent) {
-      let text = message.content;
+      let text = contentText;
       let thoughtSignature = null;
       const signatureMatch = text.match(/<!-- thought_signature: (.+?) -->/);
       if (signatureMatch) {
